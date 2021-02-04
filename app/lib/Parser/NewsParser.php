@@ -25,7 +25,7 @@ class NewsParser extends BaseParser
     public function parse(string $resource): void
     {
         //Just for dev
-        if($this->setDefaultSettings($resource)) {
+        if (!$this->setDefaultSettings($resource)) {
             throw new \RuntimeException('Settings problem');
         }
 
