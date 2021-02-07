@@ -19,3 +19,5 @@ CREATE TABLE `ptn_news` (
   PRIMARY KEY (`id`),
   FOREIGN KEY (source)  REFERENCES ptn_settings (source)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE INDEX code ON ptn_news(code)
