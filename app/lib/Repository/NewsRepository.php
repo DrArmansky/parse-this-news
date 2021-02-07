@@ -20,7 +20,7 @@ class NewsRepository extends BaseRepository
 
     /**
      * @param array|null $filter
-     * @return array [NewsModel]
+     * @return News[]
      */
     public function get(?array $filter = null): array
     {
@@ -46,7 +46,6 @@ class NewsRepository extends BaseRepository
      */
     public function add($model): bool
     {
-
         return $this->storage->create(
             self::ENTITY_NAME,
             [

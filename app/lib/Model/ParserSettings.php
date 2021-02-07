@@ -7,6 +7,7 @@ namespace ParseThisNews\Model;
 class ParserSettings
 {
     private string $source;
+    private ?string $limit;
     private string $linkSelector;
     private string $titleSelector;
     private string $textSelector;
@@ -65,6 +66,17 @@ class ParserSettings
     public function setImageSelector(string $imageSelector): self
     {
         $this->imageSelector = $imageSelector;
+        return $this;
+    }
+
+    public function getLimit(): ?string
+    {
+        return $this->limit;
+    }
+
+    public function setLimit(?string $limit): self
+    {
+        $this->limit = $limit;
         return $this;
     }
 }

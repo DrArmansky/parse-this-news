@@ -4,11 +4,8 @@
 namespace ParseThisNews\Controller;
 
 
-use DiDom\Exceptions\InvalidSelectorException;
-use GuzzleHttp\Exception\GuzzleException;
 use ParseThisNews\Model\News;
-use ParseThisNews\Parser\NewsParser;
-use ParseThisNews\Parser\ResultStorage\NewsResultStorage;
+use ParseThisNews\Parser\Manager;
 use ParseThisNews\Repository\iRepository;
 use ParseThisNews\Repository\NewsRepository;
 use ParseThisNews\Storage\MySQLStorage;
@@ -30,35 +27,16 @@ class NewsController implements iRenderableController
         $this->viewsPath = $_SERVER['DOCUMENT_ROOT'] . '/views';
     }
 
-    /**
-     * @throws InvalidSelectorException
-     * @throws GuzzleException
-     */
     public function newsListAction(): void
     {
-        $this->parseNews(self::PARSE_SOURCE);
-        $newsInfo = $this->getNewsInfoFromRepository();
-        $data = ['NEWS_LIST' => $this->prepareNewsListData($newsInfo)];
-        $this->renderAction($this->viewsPath . '/list.php', $data);
-    }
-
-    /**
-     * @param string $source
-     *
-     * @throws InvalidSelectorException
-     * @throws GuzzleException
-     */
-    protected function parseNews(string $source): void
-    {
-        //TODO:: replace to parser controller
-        $news = $this->newsRepository->get([NewsRepository::FIELD_SOURCE => $source]);
-        if (!empty($news)) {
-            return;
+        $news = $this->getNewsInfoFromRepository(self::PARSE_SOURCE);
+        if (empty($news)) {
+            $news = (new Manager())->parseNewsFromResource(self::PARSE_SOURCE);
+            $this->saveParsedNews($news);
         }
-
-        $parser = new NewsParser(new NewsResultStorage());
-
-        $parser->parse($source);
+        //TODO:: remember! first rendering without code
+        $data = ['NEWS_LIST' => $this->prepareNewsListData($news)];
+        $this->renderAction($this->viewsPath . '/list.php', $data);
     }
 
     public function newsDetailAction(): void
@@ -127,9 +105,27 @@ class NewsController implements iRenderableController
         return (string)end($uriElements);
     }
 
-    protected function getNewsInfoFromRepository(): array
+    /**
+     * @param string $source
+     * @return News[]
+     */
+    protected function getNewsInfoFromRepository(string $source): array
     {
-        return $this->newsRepository->get();
+        return $this->newsRepository->get([NewsRepository::FIELD_SOURCE => $source]);
+    }
+
+    /**
+     * @param News[] $news
+     */
+    protected function saveParsedNews(array $news): void
+    {
+        if (empty($news)) {
+            return;
+        }
+
+        foreach ($news as $newsItem) {
+            $this->newsRepository->add($newsItem);
+        }
     }
 
     protected function createNewsLink(string $newsCode): string

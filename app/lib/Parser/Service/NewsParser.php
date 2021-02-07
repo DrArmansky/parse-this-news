@@ -1,61 +1,37 @@
 <?php
 
-namespace ParseThisNews\Parser;
+namespace ParseThisNews\Parser\Service;
 
 use DiDom\Document;
 use DiDom\Element;
 use DiDom\Exceptions\InvalidSelectorException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use ParseThisNews\Model\News;
 use ParseThisNews\Model\ParserSettings;
-use ParseThisNews\Repository\ParserSettingsRepository;
-use ParseThisNews\Storage\MySQLStorage;
-use ParseThisNews\Util\Settings;
 
 
-class NewsParser extends BaseParser
+class NewsParser implements iParser
 {
-    private ?ParserSettings $settings;
+    protected ParserSettings $settings;
+
+    public function __construct(ParserSettings $parserSettings)
+    {
+        $this->settings = $parserSettings;
+    }
 
     /**
-     * @param string $resource
+     * @return News[]
      *
      * @throws GuzzleException
      * @throws InvalidSelectorException
      */
-    public function parse(string $resource): void
+    public function parse(): array
     {
-        //Just for dev
-        if (!$this->setDefaultSettings($resource)) {
-            throw new \RuntimeException('Settings problem');
-        }
-
-        $this->settings = $this->getSettingsForSource($resource);
-        $html = $this->getHtmlFromSource($resource);
+        $html = $this->getHtmlFromSource($this->settings->getSource());
         $links = $this->getLinksFromDocument(new Document($html));
-        $this->parseContentByLinks($links);
-    }
 
-    protected function getSettingsForSource(string $source): ?ParserSettings
-    {
-        $settingRepository = new ParserSettingsRepository(new MySQLStorage());
-        $settingsFromStorage = $settingRepository->get([$settingRepository::FIELD_SOURCE => $source]);
-
-        return reset($settingsFromStorage);
-    }
-
-    protected function setDefaultSettings(string $source): bool
-    {
-        $defaultSettings = Settings::getSettings($source);
-        $repository = new ParserSettingsRepository(new MySQLStorage());
-        return $repository->add(
-            (new ParserSettings())
-                ->setSource($source)
-                ->setTitleSelector($defaultSettings['title_selector'])
-                ->setLinkSelector($defaultSettings['link_selector'])
-                ->setTextSelector($defaultSettings['text_selector'])
-                ->setImageSelector($defaultSettings['image_selector'])
-        );
+        return $this->parseContentByLinks($links);
     }
 
     /**
@@ -106,19 +82,22 @@ class NewsParser extends BaseParser
 
     /**
      * @param array $links
-     * @param int|null $limit
+     * @return News[]
+     *
      * @throws GuzzleException
      * @throws InvalidSelectorException
      */
-    protected function parseContentByLinks(array $links, ?int $limit = 15): void
+    protected function parseContentByLinks(array $links): array
     {
         if ($this->settings === null) {
             throw new \RuntimeException('Parsing settings are not defined');
         }
 
         $counter = 0;
+        $result = [];
+
         foreach ($links as $link) {
-            if ($counter === $limit) {
+            if ($counter === $this->settings->getLimit()) {
                 break;
             }
 
@@ -132,22 +111,23 @@ class NewsParser extends BaseParser
             $text = $this->getMultiTextFromDocument($document, $this->settings->getTextSelector());
             $image = $this->getImageSrcFromDocument($document, $this->settings->getImageSelector());
 
-            $result = [
-                'SOURCE' => $this->settings->getSource(),
-                'TITLE' => $title,
-                'TEXT' => $text,
-                'IMAGE_SRC' => $image
-            ];
+            $result[] = (new News())
+                ->setSource($this->settings->getSource())
+                ->setTitle($title)
+                ->setText($text)
+                ->setImage($image);
 
-            $this->putResultToStorage($result);
             $counter++;
         }
+
+        return $result;
     }
 
     /**
      * @param Document $document
      * @param string $selector
      * @return string|null
+     *
      * @throws InvalidSelectorException
      */
     protected function getElementTextFromDocument(Document $document, string $selector): ?string
@@ -189,8 +169,8 @@ class NewsParser extends BaseParser
     /**
      * @param Document $document
      * @param string $selector
-     *
      * @return string|null
+     *
      * @throws InvalidSelectorException
      */
     protected function getImageSrcFromDocument(Document $document, string $selector): ?string
