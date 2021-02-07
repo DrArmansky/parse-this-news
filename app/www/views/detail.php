@@ -1,5 +1,4 @@
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/header.php';
-if (isset($templateData['NEWS_DATA'])) { ?>
+<?php if (isset($templateData['NEWS_DATA'])): ?>
     <article>
         <h1><?= $templateData['NEWS_DATA']['TITLE'] ?></h1>
         <?php if (!empty($templateData['NEWS_DATA']['IMAGE'])) : ?>
@@ -7,5 +6,4 @@ if (isset($templateData['NEWS_DATA'])) { ?>
         <?php endif ?>
         <p><?= $templateData['NEWS_DATA']['TEXT'] ?></p>
     </article>
-<?php }
-require_once $_SERVER['DOCUMENT_ROOT'] . '/footer.php'; ?>
+<?php endif; ?>

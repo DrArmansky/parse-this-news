@@ -1,5 +1,4 @@
-<?php //require_once $_SERVER['DOCUMENT_ROOT'] . '/header.php';
-if (isset($templateData['NEWS_LIST'])) { ?>
+<?php if (isset($templateData['NEWS_LIST'])): ?>
     <div class="news-list">
         <?php
         foreach ($templateData['NEWS_LIST'] as $news) { ?>
@@ -9,5 +8,4 @@ if (isset($templateData['NEWS_LIST'])) { ?>
             </article>
         <?php } ?>
     </div>
-<?php }
-//require_once $_SERVER['DOCUMENT_ROOT'] . '/footer.php'; ?>
+<?php endif; ?>
