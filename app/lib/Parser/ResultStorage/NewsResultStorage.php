@@ -3,7 +3,7 @@
 
 namespace ParseThisNews\Parser\ResultStorage;
 
-use ParseThisNews\Model\NewsModel;
+use ParseThisNews\Model\News;
 use ParseThisNews\Repository\iRepository;
 use ParseThisNews\Repository\NewsRepository;
 
@@ -18,7 +18,7 @@ class NewsResultStorage implements iResultStorage
 
     public function save($result): void
     {
-        $model = (new NewsModel())
+        $model = (new News())
             ->setSource($result['SOURCE'])
             ->setTitle($result['TITLE'])
             ->setText($result['TEXT'])

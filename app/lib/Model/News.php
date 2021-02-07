@@ -4,7 +4,7 @@
 namespace ParseThisNews\Model;
 
 
-class NewsModel
+class News
 {
     private ?int $id;
     private ?string $code;

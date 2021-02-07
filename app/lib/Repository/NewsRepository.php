@@ -4,7 +4,7 @@
 namespace ParseThisNews\Repository;
 
 
-use ParseThisNews\Model\NewsModel;
+use ParseThisNews\Model\News;
 use ParseThisNews\Storage\iStorage;
 use ParseThisNews\Storage\MySQLStorage;
 use ParseThisNews\Util\Repository;
@@ -28,14 +28,14 @@ class NewsRepository implements iRepository
         $this->storage = new MySQLStorage();
     }
 
-    public function get(array $filter): ?NewsModel
+    public function get(array $filter): ?News
     {
         $result = $this->storage->get(self::ENTITY_NAME, $filter);
         if (empty($result)) {
             return null;
         }
 
-        return (new NewsModel())
+        return (new News())
             ->setId($result[self::FIELD_ID])
             ->setCode($result[self::FIELD_CODE])
             ->setImage($result[self::FIELD_IMAGE])
@@ -55,7 +55,7 @@ class NewsRepository implements iRepository
         }
 
         return array_map(static function($element) {
-            return (new NewsModel())
+            return (new News())
                 ->setId($element[self::FIELD_ID])
                 ->setCode($element[self::FIELD_CODE])
                 ->setImage($element[self::FIELD_IMAGE])
@@ -66,7 +66,7 @@ class NewsRepository implements iRepository
     }
 
     /**
-     * @param NewsModel $model
+     * @param News $model
      * @return bool
      */
     public function add($model): bool

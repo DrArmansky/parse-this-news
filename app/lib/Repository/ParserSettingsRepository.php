@@ -6,7 +6,7 @@ namespace ParseThisNews\Repository;
 
 use ParseThisNews\Storage\iStorage;
 use ParseThisNews\Storage\MySQLStorage;
-use ParseThisNews\Model\ParserSettingsModel;
+use ParseThisNews\Model\ParserSettings;
 
 class ParserSettingsRepository implements iRepository
 {
@@ -26,14 +26,14 @@ class ParserSettingsRepository implements iRepository
         $this->storage = new MySQLStorage();
     }
 
-    public function get(array $filter): ?ParserSettingsModel
+    public function get(array $filter): ?ParserSettings
     {
         $result = $this->storage->get(self::ENTITY_NAME, $filter);
         if (empty($result)) {
             return null;
         }
 
-        return (new ParserSettingsModel())
+        return (new ParserSettings())
             ->setSource($result[self::FIELD_SOURCE])
             ->setImageSelector($result[self::FIELD_IMAGE_SELECTOR])
             ->setLinkSelector($result[self::FIELD_LINK_SELECTOR])
@@ -49,7 +49,7 @@ class ParserSettingsRepository implements iRepository
         }
 
         return array_map(static function($element) {
-            return (new ParserSettingsModel())
+            return (new ParserSettings())
                 ->setSource($element[self::FIELD_SOURCE])
                 ->setImageSelector($element[self::FIELD_IMAGE_SELECTOR])
                 ->setLinkSelector($element[self::FIELD_LINK_SELECTOR])
@@ -59,7 +59,7 @@ class ParserSettingsRepository implements iRepository
     }
 
     /**
-     * @param ParserSettingsModel $model
+     * @param ParserSettings $model
      * @return bool
      */
     public function add($model): bool

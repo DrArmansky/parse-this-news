@@ -4,7 +4,9 @@
 namespace ParseThisNews\Controller;
 
 
-use ParseThisNews\Model\NewsModel;
+use DiDom\Exceptions\InvalidSelectorException;
+use GuzzleHttp\Exception\GuzzleException;
+use ParseThisNews\Model\News;
 use ParseThisNews\Parser\NewsParser;
 use ParseThisNews\Parser\ResultStorage\NewsResultStorage;
 use ParseThisNews\Repository\iRepository;
@@ -16,18 +18,18 @@ class NewsController implements iRenderableController
     //Just for dev, not for prod
     private const PARSE_SOURCE = 'https://www.rbc.ru/';
 
-    private iRepository $repository;
+    private iRepository $newsRepository;
     private string $viewsPath;
 
     public function __construct()
     {
-        $this->repository = new NewsRepository();
+        $this->newsRepository = new NewsRepository();
         $this->viewsPath = $_SERVER['DOCUMENT_ROOT'] . '/views';
     }
 
     /**
-     * @throws \DiDom\Exceptions\InvalidSelectorException
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws InvalidSelectorException
+     * @throws GuzzleException
      */
     public function newsListAction(): void
     {
@@ -40,11 +42,16 @@ class NewsController implements iRenderableController
     /**
      * @param string $source
      *
-     * @throws \DiDom\Exceptions\InvalidSelectorException
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws InvalidSelectorException
+     * @throws GuzzleException
      */
     protected function parseNews(string $source): void
     {
+        //TODO:: replace to parser controller
+        $news = $this->newsRepository->get([NewsRepository::FIELD_SOURCE => $source]);
+        if ($news !== null) {
+            return;
+        }
         $parser = new NewsParser(new NewsResultStorage());
         $parser->parse($source);
     }
@@ -73,7 +80,7 @@ class NewsController implements iRenderableController
         }
 
         $newListData = [];
-        /** @var NewsModel $news */
+        /** @var News $news */
         foreach ($newsInfo as $news) {
             $newListData[$news->getId()]['LINK'] = $this->createNewsLink($news->getCode());
             $newListData[$news->getId()]['TITLE'] = $news->getTitle();
@@ -85,7 +92,7 @@ class NewsController implements iRenderableController
 
     protected function prepareNewsDataByCode(string $code): array
     {
-        $newsModel = $this->repository->get([NewsRepository::FIELD_CODE => $code]);
+        $newsModel = $this->newsRepository->get([NewsRepository::FIELD_CODE => $code]);
         if ($newsModel === null) {
             return [];
         }
@@ -108,7 +115,7 @@ class NewsController implements iRenderableController
 
     protected function getNewsInfoFromRepository(): array
     {
-        return $this->repository->getAll();
+        return $this->newsRepository->getAll();
     }
 
     protected function createNewsLink(string $newsCode): string

@@ -4,7 +4,7 @@
 namespace ParseThisNews\Model;
 
 
-class ParserSettingsModel
+class ParserSettings
 {
     private string $source;
     private string $linkSelector;

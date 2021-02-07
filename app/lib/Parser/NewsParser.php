@@ -7,14 +7,14 @@ use DiDom\Element;
 use DiDom\Exceptions\InvalidSelectorException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use ParseThisNews\Model\ParserSettingsModel;
+use ParseThisNews\Model\ParserSettings;
 use ParseThisNews\Repository\ParserSettingsRepository;
 use ParseThisNews\Util\Settings;
 
 
 class NewsParser extends BaseParser
 {
-    private ?ParserSettingsModel $settings;
+    private ?ParserSettings $settings;
 
     /**
      * @param string $resource
@@ -35,7 +35,7 @@ class NewsParser extends BaseParser
         $this->parseContentByLinks($links);
     }
 
-    protected function getSettingsForSource(string $source): ?ParserSettingsModel
+    protected function getSettingsForSource(string $source): ?ParserSettings
     {
         $settingRepository = new ParserSettingsRepository();
         return $settingRepository->get([$settingRepository::FIELD_SOURCE => $source]);
@@ -46,7 +46,7 @@ class NewsParser extends BaseParser
         $defaultSettings = Settings::getSettings($source);
         $repository = new ParserSettingsRepository();
         return $repository->add(
-            (new ParserSettingsModel())
+            (new ParserSettings())
                 ->setSource($source)
                 ->setTitleSelector($defaultSettings['title_selector'])
                 ->setLinkSelector($defaultSettings['link_selector'])
