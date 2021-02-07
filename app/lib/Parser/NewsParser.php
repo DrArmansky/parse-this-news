@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use ParseThisNews\Model\ParserSettings;
 use ParseThisNews\Repository\ParserSettingsRepository;
+use ParseThisNews\Storage\MySQLStorage;
 use ParseThisNews\Util\Settings;
 
 
@@ -37,14 +38,16 @@ class NewsParser extends BaseParser
 
     protected function getSettingsForSource(string $source): ?ParserSettings
     {
-        $settingRepository = new ParserSettingsRepository();
-        return $settingRepository->get([$settingRepository::FIELD_SOURCE => $source]);
+        $settingRepository = new ParserSettingsRepository(new MySQLStorage());
+        $settingsFromStorage = $settingRepository->get([$settingRepository::FIELD_SOURCE => $source]);
+
+        return reset($settingsFromStorage);
     }
 
     protected function setDefaultSettings(string $source): bool
     {
         $defaultSettings = Settings::getSettings($source);
-        $repository = new ParserSettingsRepository();
+        $repository = new ParserSettingsRepository(new MySQLStorage());
         return $repository->add(
             (new ParserSettings())
                 ->setSource($source)

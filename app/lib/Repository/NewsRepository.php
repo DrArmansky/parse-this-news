@@ -5,16 +5,11 @@ namespace ParseThisNews\Repository;
 
 
 use ParseThisNews\Model\News;
-use ParseThisNews\Storage\iStorage;
-use ParseThisNews\Storage\MySQLStorage;
 use ParseThisNews\Util\Repository;
 
-class NewsRepository implements iRepository
+class NewsRepository extends BaseRepository
 {
-    /** @var iStorage|MySQLStorage  */
-    private iStorage $storage;
-
-    private const ENTITY_NAME = 'ptn_news';
+    protected const ENTITY_NAME = 'ptn_news';
 
     public const FIELD_ID = 'id';
     public const FIELD_CODE = 'code';
@@ -23,33 +18,13 @@ class NewsRepository implements iRepository
     public const FIELD_TEXT = 'text';
     public const FIELD_IMAGE = 'image';
 
-    public function __construct()
-    {
-        $this->storage = new MySQLStorage();
-    }
-
-    public function get(array $filter): ?News
-    {
-        $result = $this->storage->get(self::ENTITY_NAME, $filter);
-        if (empty($result)) {
-            return null;
-        }
-
-        return (new News())
-            ->setId($result[self::FIELD_ID])
-            ->setCode($result[self::FIELD_CODE])
-            ->setImage($result[self::FIELD_IMAGE])
-            ->setSource($result[self::FIELD_SOURCE])
-            ->setText($result[self::FIELD_TEXT])
-            ->setTitle($result[self::FIELD_TITLE]);
-    }
-
     /**
+     * @param array|null $filter
      * @return array [NewsModel]
      */
-    public function getAll(): array
+    public function get(?array $filter = null): array
     {
-        $result = $this->storage->findAll(self::ENTITY_NAME);
+        $result = $this->storage->get(self::ENTITY_NAME, $filter);
         if (empty($result)) {
             return [];
         }
@@ -82,17 +57,5 @@ class NewsRepository implements iRepository
                 self::FIELD_IMAGE => $model->getImage()
             ]
         );
-    }
-
-
-
-    public function delete($id)
-    {
-        // TODO: Implement delete() method.
-    }
-
-    public function clean(): bool
-    {
-        return $this->storage->deleteAll(self::ENTITY_NAME);
     }
 }

@@ -6,6 +6,7 @@ namespace ParseThisNews\Parser\ResultStorage;
 use ParseThisNews\Model\News;
 use ParseThisNews\Repository\iRepository;
 use ParseThisNews\Repository\NewsRepository;
+use ParseThisNews\Storage\MySQLStorage;
 
 class NewsResultStorage implements iResultStorage
 {
@@ -13,7 +14,7 @@ class NewsResultStorage implements iResultStorage
 
     public function __construct()
     {
-        $this->repository = new NewsRepository();
+        $this->repository = new NewsRepository(new MySQLStorage());
     }
 
     public function save($result): void

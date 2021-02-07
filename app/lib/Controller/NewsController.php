@@ -11,6 +11,7 @@ use ParseThisNews\Parser\NewsParser;
 use ParseThisNews\Parser\ResultStorage\NewsResultStorage;
 use ParseThisNews\Repository\iRepository;
 use ParseThisNews\Repository\NewsRepository;
+use ParseThisNews\Storage\MySQLStorage;
 use ParseThisNews\Util\Settings;
 use ParseThisNews\Util\Template;
 
@@ -25,7 +26,7 @@ class NewsController implements iRenderableController
 
     public function __construct()
     {
-        $this->newsRepository = new NewsRepository();
+        $this->newsRepository = new NewsRepository(new MySQLStorage());
         $this->viewsPath = $_SERVER['DOCUMENT_ROOT'] . '/views';
     }
 
@@ -51,10 +52,12 @@ class NewsController implements iRenderableController
     {
         //TODO:: replace to parser controller
         $news = $this->newsRepository->get([NewsRepository::FIELD_SOURCE => $source]);
-        if ($news !== null) {
+        if (!empty($news)) {
             return;
         }
+
         $parser = new NewsParser(new NewsResultStorage());
+
         $parser->parse($source);
     }
 
@@ -124,7 +127,7 @@ class NewsController implements iRenderableController
 
     protected function getNewsInfoFromRepository(): array
     {
-        return $this->newsRepository->getAll();
+        return $this->newsRepository->get();
     }
 
     protected function createNewsLink(string $newsCode): string

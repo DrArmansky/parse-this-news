@@ -38,38 +38,34 @@ class MySQLStorage implements iStorage
         return $connection;
     }
 
-    public function findAll(string $entityName): array
+    public function get(string $entityName, ?array $filter = []): ?array
     {
-        $statement = $this->connection->query(sprintf('SELECT * FROM %s', $entityName));
-        return $statement->fetchAll();
-    }
+        $query = sprintf('SELECT * FROM %s', $entityName);
+        $filterValues = null;
 
-    public function get(string $entityName, array $filer)
-    {
-        if (empty($filer)) {
-            throw new \InvalidArgumentException('Empty filter');
+        if (!empty($filter))
+        {
+            $markers = implode(
+                ' AND ',
+                array_map(
+                    static function ($name) {
+                        return $name . ' = ?';
+                    },
+                    array_keys($filter)
+                )
+            );
+
+            $query .= ' WHERE ' . $markers;
+            $filterValues = array_values($filter);
         }
 
-        $query = sprintf('SELECT * FROM %s', $entityName);
-        $markers = implode(
-            ' AND ',
-            array_map(
-                static function ($name) {
-                    return $name . ' = ?';
-                },
-                array_keys($filer)
-            )
-        );
-
-        $query .= ' WHERE ' . $markers;
-
         $statement = $this->connection->prepare($query);
-        $result = $statement->execute(array_values($filer));
+        $result = $statement->execute($filterValues);
         if (!$result) {
             return null;
         }
 
-        return $statement->fetch();
+        return $statement->fetchAll();
     }
 
     public function create(string $entityName, array $data): bool
@@ -103,15 +99,34 @@ class MySQLStorage implements iStorage
         // TODO: Implement update() method.
     }
 
-    public function delete(string $entityName, $id)
+    public function delete(string $entityName, ?array $condition = []): bool
     {
-        // TODO: Implement delete() method.
-    }
+        if (empty($condition)) {
+            $query = 'TRUNCATE TABLE %s;';
+            $query = sprintf($query, $entityName);
 
-    public function deleteAll(string $entityName): bool
-    {
-        $query = 'SET FOREIGN_KEY_CHECKS = 0;  TRUNCATE TABLE %s; SET FOREIGN_KEY_CHECKS = 1;';
-        $statement = $this->connection->query(sprintf($query, $entityName));
-        return !empty($statement);
+            $statement = $this->connection->query($query);
+            return !empty($statement);
+        }
+
+        $query = sprintf('DELETE FROM %s', $entityName);
+
+        $markers = implode(
+            ' AND ',
+            array_map(
+                static function ($name) {
+                    return $name . ' = ?';
+                },
+                array_keys($condition)
+            )
+        );
+
+        $query .= ' WHERE ' . $markers;
+        $conditionValues = array_values($condition);
+
+        $statement = $this->connection->prepare($query);
+        $result = $statement->execute($conditionValues);
+
+        return !empty($result);
     }
 }
