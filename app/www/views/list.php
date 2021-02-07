@@ -1,4 +1,4 @@
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/header.php';
+<?php //require_once $_SERVER['DOCUMENT_ROOT'] . '/header.php';
 if (isset($templateData['NEWS_LIST'])) { ?>
     <div class="news-list">
         <?php
@@ -10,4 +10,4 @@ if (isset($templateData['NEWS_LIST'])) { ?>
         <?php } ?>
     </div>
 <?php }
-require_once $_SERVER['DOCUMENT_ROOT'] . '/footer.php'; ?>
+//require_once $_SERVER['DOCUMENT_ROOT'] . '/footer.php'; ?>

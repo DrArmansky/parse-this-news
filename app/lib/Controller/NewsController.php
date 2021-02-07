@@ -104,16 +104,18 @@ class NewsController implements iRenderableController
 
     protected function prepareNewsDataByCode(string $code): array
     {
-        $newsModel = $this->newsRepository->get([NewsRepository::FIELD_CODE => $code]);
-        if ($newsModel === null) {
+        $newsFromRepository = $this->newsRepository->get([NewsRepository::FIELD_CODE => $code]);
+        if (empty($newsFromRepository)) {
             return [];
         }
 
+        $news = reset($newsFromRepository);
+
         return [
             'NEWS_DATA' => [
-                'TITLE' => $newsModel->getTitle(),
-                'IMAGE' => $newsModel->getImage(),
-                'TEXT' => $newsModel->getText()
+                'TITLE' => $news->getTitle(),
+                'IMAGE' => $news->getImage(),
+                'TEXT' => $news->getText()
             ]
         ];
     }
