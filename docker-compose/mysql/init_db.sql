@@ -6,6 +6,7 @@ CREATE TABLE `ptn_settings` (
   `title_selector` varchar(255) NOT NULL,
   `text_selector` varchar(255) NOT NULL,
   `image_selector` varchar(255) NOT NULL,
+  `limit` int unsigned,
   PRIMARY KEY (`source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
