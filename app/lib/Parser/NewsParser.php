@@ -71,7 +71,6 @@ class NewsParser extends BaseParser
 
     /**
      * @param Document $document
-     * @param int|null $limit
      * @return array
      *
      * @throws InvalidSelectorException

@@ -11,12 +11,14 @@ use ParseThisNews\Parser\NewsParser;
 use ParseThisNews\Parser\ResultStorage\NewsResultStorage;
 use ParseThisNews\Repository\iRepository;
 use ParseThisNews\Repository\NewsRepository;
+use ParseThisNews\Util\Settings;
 use ParseThisNews\Util\Template;
 
 class NewsController implements iRenderableController
 {
     //Just for dev, not for prod
     private const PARSE_SOURCE = 'https://www.rbc.ru/';
+    private const PREVIEW_SETTINGS_NAME = 'Preview';
 
     private iRepository $newsRepository;
     private string $viewsPath;
@@ -79,12 +81,19 @@ class NewsController implements iRenderableController
             return [];
         }
 
+        $previewTextLength = Settings::getSettings(self::PREVIEW_SETTINGS_NAME)['preview_text_length'];
         $newListData = [];
+
         /** @var News $news */
         foreach ($newsInfo as $news) {
             $newListData[$news->getId()]['LINK'] = $this->createNewsLink($news->getCode());
             $newListData[$news->getId()]['TITLE'] = $news->getTitle();
-            $newListData[$news->getId()]['TEXT'] = substr($news->getText(), 0, 200) . '...';
+            $newListData[$news->getId()]['TEXT'] = mb_strimwidth(
+                $news->getText(),
+                0,
+                $previewTextLength,
+                '...'
+            );
         }
 
         return $newListData;
