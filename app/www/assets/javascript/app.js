@@ -4,11 +4,18 @@ function NewsParser() {
 
     this.routes = null;
     this.el = {
-        'form': '#parseSettings', 'sources': '.source-table'
+        'form' : '#parseSettings',
+        'sources' : '.source-table',
+        'parseBtn' : '.parse-resource',
+        'parseStatus' : '.source-parsed-status'
     };
 
     this.template = {
-        'sourceElement': '<tr data-source="#DATA_SOURCE#">\n' + '<td>#RESOURCE#</td>\n' + '<td>#IS_PARSED#</td>\n' + '<td><button class="parse-resource">Парсить</button></td>\n' + '</tr>'
+        'sourceElement': '<tr>\n'
+            + '<td>#RESOURCE#</td>\n'
+            + '<td class="source-parsed-status">#IS_PARSED#</td>\n'
+            + '<td><button data-source="#DATA_SOURCE#" class="parse-resource">Парсить</button></td>\n'
+        + '</tr>'
     }
 
     this.init = function (routes) {
@@ -24,6 +31,7 @@ function NewsParser() {
 
     this.initHandlers = function () {
         $(document).on('submit', this.el.form, this.formSubmitHandler.bind(this));
+        $(document).on('click', this.el.parseBtn, this.parseSource.bind(this));
         $(window).on('load', this.getSources.bind(this));
     }
 
@@ -84,8 +92,52 @@ function NewsParser() {
             let template = that.template.sourceElement;
             template = template.replace(new RegExp('#RESOURCE#', 'g'), item['NAME']);
             template = template.replace(new RegExp('#DATA_SOURCE#', 'g'), item['NAME']);
-            template = template.replace(new RegExp('#IS_PARSED#', 'g'), item['IS_PARSED'] ? 'YES' : 'NO');
+
+            let parsedStatus = 'NO';
+            if (item['IS_PARSED']) {
+                let sourceLink = that.prepareLinkForSource(item['NAME']);
+                parsedStatus = '<a href="'+ sourceLink +'">SHOW</a>';
+
+                let templateNode = $(template);
+                templateNode.find(that.el.parseBtn).prop('disabled', true);
+                template = templateNode.html();
+            }
+
+            template = template.replace(new RegExp('#IS_PARSED#', 'g'), parsedStatus);
             $(that.el.sources).append(template);
         });
+    }
+
+    this.parseSource = function (e) {
+        e.preventDefault();
+
+        let path = this.routes['PARSE'];
+        if (path === undefined) {
+            console.error('Parse path are not defined');
+            return false;
+        }
+
+        let targetElement = e.target;
+        let source = $(targetElement).data('source');
+        $.ajax({
+            method: "POST",
+            url: path,
+            data: {source: source},
+            success: this.updateSourceItemByAjaxData.bind(this, targetElement)
+        })
+    }
+
+    this.updateSourceItemByAjaxData = function (targetElement, answer) {
+        if (answer['result'] === undefined || answer['result']['success'] === false) {
+            return false;
+        }
+
+        let sourceLink = this.prepareLinkForSource($(targetElement).data('source'));
+        $(targetElement).parents('tr').find(this.el.parseStatus).html('<a href="'+ sourceLink +'">SHOW</a>');
+        $(targetElement).prop('disabled', true);
+    }
+
+    this.prepareLinkForSource = function (source) {
+        return '/list/?source=' + source;
     }
 }
