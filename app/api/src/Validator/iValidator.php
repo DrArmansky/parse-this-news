@@ -5,5 +5,5 @@ namespace ParseThisNewsApi\Validator;
 
 interface iValidator
 {
-    public function validate();
+    public function validate($data);
 }

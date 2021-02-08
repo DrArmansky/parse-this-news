@@ -3,6 +3,7 @@
 namespace ParseThisNewsApi\Controller;
 
 
+use ParseThisNewsApi\Formatter\iFormatter;
 use ParseThisNewsApi\Request\iRequest;
 use ParseThisNewsApi\Response\iResponse;
 
@@ -17,11 +18,28 @@ abstract class BaseController implements iController
         $this->response = $response;
     }
 
-    abstract public function sendResponse($resultData, $statusCode);
+    public function sendResponse($response, int $statusCode): void
+    {
+        $this->response
+            ->setStatusCode($statusCode)
+            ->setContent($response)
+            ->send();
+    }
 
-    abstract public function sendError(\Throwable $exception);
+    public function sendError(\Throwable $exception): void
+    {
+        $this->response
+            ->setStatusCode($exception->getCode())
+            ->setContent(['error' => $exception->getMessage()])
+            ->send();
+    }
 
-    protected function validateRequest()
+    protected function formatResponse($response, iFormatter $formatter)
+    {
+        return $formatter->format($response);
+    }
+
+    protected function validateRequest(): void
     {
         try {
             $this->request->validate();
