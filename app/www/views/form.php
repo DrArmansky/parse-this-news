@@ -20,6 +20,7 @@
 
         <?php endforeach; ?>
 
+        <button type="submit" id="rbc-default">Установить для RBC</button>
         <button type="submit">Сохранить</button>
     </form>
     <br>

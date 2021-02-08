@@ -7,7 +7,8 @@ function NewsParser() {
         'form' : '#parseSettings',
         'sources' : '.source-table',
         'parseBtn' : '.parse-resource',
-        'parseStatus' : '.source-parsed-status'
+        'parseStatus' : '.source-parsed-status',
+        'rbcDefault' : '#rbc-default'
     };
 
     this.template = {
@@ -33,6 +34,7 @@ function NewsParser() {
         $(document).on('submit', this.el.form, this.formSubmitHandler.bind(this));
         $(document).on('click', this.el.parseBtn, this.parseSource.bind(this));
         $(window).on('load', this.getSources.bind(this));
+        $(document).on('click', this.el.rbcDefault, this.setDefaultSettings.bind(this));
     }
 
     this.formSubmitHandler = function (e) {
@@ -139,5 +141,17 @@ function NewsParser() {
 
     this.prepareLinkForSource = function (source) {
         return '/news-list/?source=' + source;
+    }
+
+    this.setDefaultSettings = function (e) {
+        e.preventDefault();
+
+        let form = $(this.el.form);
+        form.find("input[name=source]").val('https://www.rbc.ru/');
+        form.find("input[name=titleSelector]").val('.article__header__title');
+        form.find("input[name=linkSelector]").val('.news-feed__item');
+        form.find("input[name=textSelector]").val('.article__text p');
+        form.find("input[name=imageSelector]").val('.article__main-image__image');
+        form.find("input[name=newsLimit]").val(15);
     }
 }
