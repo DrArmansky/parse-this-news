@@ -11,7 +11,7 @@ Add to \etc\hosts:
 127.0.0.1 parse-this-news.localhost
 ```
 
-Go to /app/ dorectory and execute:
+Go to /app/ directory and execute:
 ```
 composer install
 ```
