@@ -15,7 +15,6 @@ use ParseThisNews\Util\Template;
 class NewsController extends BaseController
 {
     //Just for dev, not for prod
-    private const PARSE_SOURCE = 'https://www.rbc.ru/';
     private const PREVIEW_SETTINGS_NAME = 'Preview';
 
     protected iRepository $newsRepository;
@@ -28,12 +27,16 @@ class NewsController extends BaseController
 
     public function newsListAction(): void
     {
-        $news = $this->getNewsInfoFromRepository(self::PARSE_SOURCE);
-        if (empty($news)) {
-            $news = (new Manager())->parseNewsFromResource(self::PARSE_SOURCE);
-            $this->saveParsedNews($news);
+        $source = $_GET['source'];
+        if (empty($source)) {
+            $this->notFoundRedirect();
         }
-        //TODO:: remember! first rendering without code
+
+        $news = $this->getNewsInfoFromRepository($source);
+        if (empty($news)) {
+            $this->notFoundRedirect();
+        }
+
         $data = ['NEWS_LIST' => $this->prepareNewsListData($news)];
         $this->renderAction($this->viewsPath . '/list.php', $data);
     }
@@ -43,8 +46,7 @@ class NewsController extends BaseController
         $newsCode = $this->getNewsCodeFromRequest();
         $data = $this->prepareNewsDataByCode($newsCode);
         if (empty($data)) {
-            \header("HTTP/1.0 404 Not Found");
-            die();
+            $this->notFoundRedirect();
         }
 
         $this->renderAction($this->viewsPath . '/detail.php', $data);
@@ -125,5 +127,11 @@ class NewsController extends BaseController
     protected function createNewsLink(string $newsCode): string
     {
         return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . '/detail/' . $newsCode;
+    }
+
+    protected function notFoundRedirect()
+    {
+        \header("HTTP/1.0 404 Not Found");
+        die();
     }
 }

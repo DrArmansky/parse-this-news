@@ -138,6 +138,6 @@ function NewsParser() {
     }
 
     this.prepareLinkForSource = function (source) {
-        return '/list/?source=' + source;
+        return '/news-list/?source=' + source;
     }
 }
