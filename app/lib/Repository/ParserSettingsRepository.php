@@ -18,10 +18,10 @@ class ParserSettingsRepository extends BaseRepository
     public const FIELD_IMAGE_SELECTOR = 'image_selector';
 
     /**
-     * @param array $filter
+     * @param array|null $filter
      * @return ParserSettings[]
      */
-    public function get(array $filter): array
+    public function get(?array $filter = null): array
     {
         $result = $this->storage->get(self::ENTITY_NAME, $filter);
         if (empty($result)) {

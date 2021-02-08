@@ -17,4 +17,14 @@ $router->post(
     }
 );
 
+$router->get(
+    '/api/v1/sources/',
+    function () {
+        (new ParserController(
+            new BaseRequest(),
+            new JSONResponse()
+        ))->getSourceList();
+    }
+);
+
 $router->run();

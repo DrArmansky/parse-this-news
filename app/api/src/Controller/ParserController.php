@@ -7,6 +7,7 @@ namespace ParseThisNewsApi\Controller;
 use ParseThisNews\Model\ParserSettings;
 use ParseThisNews\Repository\ParserSettingsRepository;
 use ParseThisNews\Storage\MySQLStorage;
+use ParseThisNewsApi\Formatter\SourceListFormatter;
 use ParseThisNewsApi\Util\HTTPCodes;
 use ParseThisNewsApi\Validator\UsingModelValidator;
 
@@ -18,6 +19,15 @@ class ParserController extends BaseController
 
     public function getSourceList(): void
     {
+        $parserSettings = (new ParserSettingsRepository(new MySQLStorage()))->get();
+        $formatter = new SourceListFormatter();
+
+        if (empty($parserSettings)) {
+            $this->sendResponse(200, $formatter->format([]));
+        }
+
+        $sourceList = $this->formatResponseData($parserSettings, $formatter);
+        $this->sendResponse(200, $sourceList);
     }
 
     public function saveSettingsAction(): void
