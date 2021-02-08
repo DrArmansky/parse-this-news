@@ -12,19 +12,18 @@ use ParseThisNews\Storage\MySQLStorage;
 use ParseThisNews\Util\Settings;
 use ParseThisNews\Util\Template;
 
-class NewsController implements iRenderableController
+class NewsController extends BaseController
 {
     //Just for dev, not for prod
     private const PARSE_SOURCE = 'https://www.rbc.ru/';
     private const PREVIEW_SETTINGS_NAME = 'Preview';
 
-    private iRepository $newsRepository;
-    private string $viewsPath;
+    protected iRepository $newsRepository;
 
     public function __construct()
     {
+        parent::__construct();
         $this->newsRepository = new NewsRepository(new MySQLStorage());
-        $this->viewsPath = $_SERVER['DOCUMENT_ROOT'] . '/views';
     }
 
     public function newsListAction(): void
@@ -49,11 +48,6 @@ class NewsController implements iRenderableController
         }
 
         $this->renderAction($this->viewsPath . '/detail.php', $data);
-    }
-
-    public function renderAction(string $templatePath, array $data): void
-    {
-        echo Template::render($templatePath, $data);
     }
 
     protected function prepareNewsListData(array $newsInfo): array

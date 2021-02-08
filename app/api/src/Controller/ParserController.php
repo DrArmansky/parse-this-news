@@ -47,16 +47,21 @@ class ParserController extends BaseController
             return;
         }
 
-        array_walk($news, static function($newsItem) {
-            (new NewsRepository(new MySQLStorage()))->add($newsItem);
-        });
+        array_walk(
+            $news,
+            static function ($newsItem) {
+                (new NewsRepository(new MySQLStorage()))->add($newsItem);
+            }
+        );
     }
 
     protected function getSettingsForSource(string $source): ParserSettings
     {
-        $settingsFromStorage = (new ParserSettingsRepository(new MySQLStorage()))->get([
-            ParserSettingsRepository::FIELD_SOURCE => $source
-       ]);
+        $settingsFromStorage = (new ParserSettingsRepository(new MySQLStorage()))->get(
+            [
+                ParserSettingsRepository::FIELD_SOURCE => $source
+            ]
+        );
 
         if (empty($settingsFromStorage)) {
             $this->sendError(
@@ -77,14 +82,26 @@ class ParserController extends BaseController
 
     public function getSourceList(): void
     {
-        $parserSettings = (new ParserSettingsRepository(new MySQLStorage()))->get();
+        $storage = new MySQLStorage();
         $formatter = new SourceListFormatter();
 
+        $parserSettings = (new ParserSettingsRepository($storage))->get();
         if (empty($parserSettings)) {
             $this->sendResponse(200, $formatter->format([]));
         }
 
-        $sourceList = $this->formatResponseData($parserSettings, $formatter);
+        $sources = array_map(static function ($settings) {
+            return $settings->getSource();
+        }, $parserSettings);
+
+        $parsedNews = (new NewsRepository($storage))->get();
+        $parsedSources = array_unique(array_map(static function($news) {
+            return $news->getSource();
+        }, $parsedNews));
+
+        $result = ['ALL_SOURCES' => $sources, 'PARSED_SOURCES' => $parsedSources];
+
+        $sourceList = $this->formatResponseData($result, $formatter);
         $this->sendResponse(200, $sourceList);
     }
 
@@ -103,7 +120,15 @@ class ParserController extends BaseController
             );
         }
 
-        $this->sendResponse(HTTPCodes::OK);
+        $this->sendResponse(
+            HTTPCodes::OK,
+            [
+                'result' => [
+                    'resource' => $parseSettingsModel->getSource()
+                ],
+                'error' => null
+            ]
+        );
     }
 
     protected function createParseSettingsModelByRequest(): ParserSettings

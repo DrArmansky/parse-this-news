@@ -4,23 +4,25 @@
 namespace ParseThisNewsApi\Formatter;
 
 
-use ParseThisNews\Model\ParserSettings;
-
 class SourceListFormatter implements iFormatter
 {
 
     /**
-     * @param ParserSettings[] $data
+     * @param array $data
      * @return array
      */
     public function format($data): array
     {
-        $sourceList = array_map(static function($settings) {
-            return $settings->getSource();
-        }, $data);
+        $sourcesInfo = [];
+        foreach ($data['ALL_SOURCES'] as $source) {
+            $sourcesInfo[] = [
+                'NAME' => $source,
+                'IS_PARSED' => in_array($source, $data['PARSED_SOURCES'], true)
+            ];
+        }
 
         return [
-            'result' => ['sources' => $sourceList],
+            'result' => $sourcesInfo,
             'error' => null
         ];
     }
