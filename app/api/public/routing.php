@@ -8,7 +8,17 @@ use ParseThisNewsApi\Response\JSONResponse;
 $router = new Router();
 
 $router->post(
-    '/api/v1/',
+    '/api/v1/parse/',
+    function () {
+        (new ParserController(
+            new BaseRequest(),
+            new JSONResponse()
+        ))->parseAction();
+    }
+);
+
+$router->post(
+    '/api/v1/settings/',
     function () {
         (new ParserController(
             new BaseRequest(),

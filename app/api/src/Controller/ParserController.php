@@ -4,17 +4,75 @@
 namespace ParseThisNewsApi\Controller;
 
 
+use ParseThisNews\Model\News;
 use ParseThisNews\Model\ParserSettings;
+use ParseThisNews\Parser\Service\NewsParser;
+use ParseThisNews\Repository\NewsRepository;
 use ParseThisNews\Repository\ParserSettingsRepository;
 use ParseThisNews\Storage\MySQLStorage;
+use ParseThisNewsApi\Exception\ConflictException;
+use ParseThisNewsApi\Formatter\ParsingFormatter;
 use ParseThisNewsApi\Formatter\SourceListFormatter;
 use ParseThisNewsApi\Util\HTTPCodes;
+use ParseThisNewsApi\Validator\ParsingValidator;
 use ParseThisNewsApi\Validator\UsingModelValidator;
 
 class ParserController extends BaseController
 {
     public function parseAction(): void
     {
+        $this->validateRequest(new ParsingValidator());
+        $source = $this->request->get('source');
+
+        $this->checkSource($source);
+        $settings = $this->getSettingsForSource($source);
+
+        $news = [];
+        try {
+            $news = (new NewsParser($settings))->parse();
+            $this->saveParsedNews($news);
+        } catch (\Throwable $exception) {
+            $this->sendError($exception);
+        }
+
+        $this->sendResponse(HTTPCodes::OK, $this->formatResponseData($news, new ParsingFormatter()));
+    }
+
+    /**
+     * @param News[] $news
+     */
+    protected function saveParsedNews(array $news): void
+    {
+        if (empty($news)) {
+            return;
+        }
+
+        array_walk($news, static function($newsItem) {
+            (new NewsRepository(new MySQLStorage()))->add($newsItem);
+        });
+    }
+
+    protected function getSettingsForSource(string $source): ParserSettings
+    {
+        $settingsFromStorage = (new ParserSettingsRepository(new MySQLStorage()))->get([
+            ParserSettingsRepository::FIELD_SOURCE => $source
+       ]);
+
+        if (empty($settingsFromStorage)) {
+            $this->sendError(
+                new \RuntimeException("Settings for {$source} was not defined", 500)
+            );
+        }
+
+        return reset($settingsFromStorage);
+    }
+
+    protected function checkSource(string $source): void
+    {
+        $parsedNews = (new NewsRepository(new MySQLStorage()))->get([NewsRepository::FIELD_SOURCE => $source]);
+        if (!empty($parsedNews)) {
+            $this->sendError(new ConflictException("Source {$source} is already parsed"));
+        }
     }
 
     public function getSourceList(): void
