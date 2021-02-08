@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `ptn_config`, `ptn_news`;
+DROP TABLE IF EXISTS `ptn_settings`, `ptn_news`;
 
 CREATE TABLE `ptn_settings` (
   `source` varchar(255) NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE `ptn_settings` (
   `title_selector` varchar(255) NOT NULL,
   `text_selector` varchar(255) NOT NULL,
   `image_selector` varchar(255) NOT NULL,
-  `limit` int unsigned,
+  `news_limit` int unsigned NULL,
   PRIMARY KEY (`source`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 

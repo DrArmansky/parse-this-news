@@ -1,9 +1,11 @@
 <?php
 
-require_once '../vendor/autoload.php';
+use ParseThisNews\Util\Template;
 
-$header = \ParseThisNews\Util\Template::render($_SERVER['DOCUMENT_ROOT'] . '/header.php');
-$footer = \ParseThisNews\Util\Template::render($_SERVER['DOCUMENT_ROOT'] . '/footer.php');
+require_once 'bootstrap.php';
+
+$header = Template::render($_SERVER['DOCUMENT_ROOT'] . '/header.php');
+$footer = Template::render($_SERVER['DOCUMENT_ROOT'] . '/footer.php');
 
 ob_start();
 require 'routing.php';

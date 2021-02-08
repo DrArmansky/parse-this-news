@@ -11,7 +11,7 @@ class ParserSettingsRepository extends BaseRepository
     protected const ENTITY_NAME = 'ptn_settings';
 
     public const FIELD_SOURCE = 'source';
-    public const FIELD_LIMIT = 'limit';
+    public const FIELD_LIMIT = 'news_limit';
     public const FIELD_LINK_SELECTOR = 'link_selector';
     public const FIELD_TITLE_SELECTOR = 'title_selector';
     public const FIELD_TEXT_SELECTOR = 'text_selector';
@@ -35,7 +35,7 @@ class ParserSettingsRepository extends BaseRepository
                 ->setLinkSelector($element[self::FIELD_LINK_SELECTOR])
                 ->setTitleSelector($element[self::FIELD_TITLE_SELECTOR])
                 ->setTextSelector($element[self::FIELD_TEXT_SELECTOR])
-                ->setLimit($element[self::FIELD_LIMIT]);
+                ->setNewsLimit($element[self::FIELD_LIMIT]);
         }, $result);
     }
 
@@ -53,7 +53,7 @@ class ParserSettingsRepository extends BaseRepository
                 self::FIELD_LINK_SELECTOR => $model->getLinkSelector(),
                 self::FIELD_TEXT_SELECTOR => $model->getTextSelector(),
                 self::FIELD_IMAGE_SELECTOR => $model->getImageSelector(),
-                self::FIELD_LIMIT => $model->getLimit()
+                self::FIELD_LIMIT => $model->getNewsLimit()
             ]
         );
     }

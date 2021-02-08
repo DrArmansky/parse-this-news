@@ -6,14 +6,11 @@ namespace ParseThisNews\Util;
 
 class Settings
 {
-    private static function getIniFilePath(): string
-    {
-        return dirname($_SERVER['DOCUMENT_ROOT']) . '/settings.ini';
-    }
+    public static string $settingsPath = '';
 
     public static function getSettings(?string $section = null): array
     {
-        $settings = parse_ini_file(self::getIniFilePath(), $section !== null);
+        $settings = parse_ini_file(self::$settingsPath, $section !== null);
         if (empty($settings)) {
             return [];
         }

@@ -8,6 +8,4 @@ interface iRequest
     public function get(string $paramName);
 
     public function getAll(): array;
-
-    public function validate();
 }

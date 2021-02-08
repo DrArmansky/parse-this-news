@@ -7,7 +7,7 @@ namespace ParseThisNews\Model;
 class ParserSettings
 {
     private string $source;
-    private ?string $limit;
+    private ?string $newsLimit;
     private string $linkSelector;
     private string $titleSelector;
     private string $textSelector;
@@ -69,14 +69,14 @@ class ParserSettings
         return $this;
     }
 
-    public function getLimit(): ?string
+    public function getNewsLimit(): ?string
     {
-        return $this->limit;
+        return $this->newsLimit;
     }
 
-    public function setLimit(?string $limit): self
+    public function setNewsLimit(?string $newsLimit): self
     {
-        $this->limit = $limit;
+        $this->newsLimit = $newsLimit;
         return $this;
     }
 }

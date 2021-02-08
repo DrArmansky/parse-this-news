@@ -97,7 +97,7 @@ class NewsParser implements iParser
         $result = [];
 
         foreach ($links as $link) {
-            if ($counter === $this->settings->getLimit()) {
+            if ($counter === $this->settings->getNewsLimit()) {
                 break;
             }
 

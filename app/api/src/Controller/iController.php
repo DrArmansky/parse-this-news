@@ -5,7 +5,7 @@ namespace ParseThisNewsApi\Controller;
 
 interface iController
 {
-    public function sendResponse(array $response, int $statusCode);
+    public function sendResponse(int $statusCode, array $response);
 
     public function sendError(\Throwable $exception);
 }

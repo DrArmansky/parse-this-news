@@ -3,7 +3,14 @@
 namespace ParseThisNewsApi\Validator;
 
 
+use ParseThisNewsApi\Exception\ValidationException;
+use ParseThisNewsApi\Request\iRequest;
+
 interface iValidator
 {
-    public function validate($data);
+    /**
+     * @param iRequest $request
+     * @throws ValidationException
+     */
+    public function validate(iRequest $request);
 }

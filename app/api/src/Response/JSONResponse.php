@@ -4,6 +4,8 @@
 namespace ParseThisNewsApi\Response;
 
 
+use ParseThisNewsApi\Util\HTTPCodes;
+
 class JSONResponse implements iResponse
 {
     private const JSON_RESPONSE_HEADER = 'Content-Type: application/json';
@@ -26,13 +28,16 @@ class JSONResponse implements iResponse
     public function send(): void
     {
         header(self::JSON_RESPONSE_HEADER);
+
         try {
             $json = json_encode($this->content, JSON_THROW_ON_ERROR);
             http_response_code($this->statusCode);
         } catch (\JsonException $exception) {
-            http_response_code(500);
+            http_response_code(HTTPCodes::INTERNAL_ERROR);
             $json = ['error' => $exception->getMessage()];
         }
+
         echo $json;
+        die();
     }
 }

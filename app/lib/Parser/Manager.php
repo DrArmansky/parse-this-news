@@ -55,7 +55,7 @@ class Manager
                 ->setLinkSelector($defaultSettings['link_selector'])
                 ->setTextSelector($defaultSettings['text_selector'])
                 ->setImageSelector($defaultSettings['image_selector'])
-                ->setLimit($defaultSettings['limit'])
+                ->setNewsLimit($defaultSettings['news_limit'])
         );
     }
 }

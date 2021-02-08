@@ -73,9 +73,10 @@ class MySQLStorage implements iStorage
         if (empty($data)) {
             throw new \InvalidArgumentException('Empty data');
         }
+        $filteredData = array_filter($data);
 
         $query = sprintf('INSERT INTO %s', $entityName);
-        $query .= ' (' . implode(', ', array_keys($data)) . ')';
+        $query .= ' (' . implode(', ', array_keys($filteredData)) . ')';
 
         $markers = implode(
             ', ',
@@ -83,7 +84,7 @@ class MySQLStorage implements iStorage
                 static function () {
                     return '?';
                 },
-                array_keys($data)
+                array_keys($filteredData)
             )
         );
 
@@ -91,7 +92,7 @@ class MySQLStorage implements iStorage
 
         $statement = $this->connection->prepare($query);
 
-        return $statement->execute(array_values($data));
+        return $statement->execute(array_values($filteredData));
     }
 
     public function update(string $entityName, $id, array $data)
