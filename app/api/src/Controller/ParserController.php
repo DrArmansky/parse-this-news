@@ -9,7 +9,7 @@ use ParseThisNews\Model\ParserSettings;
 use ParseThisNews\Parser\Service\NewsParser;
 use ParseThisNews\Repository\NewsRepository;
 use ParseThisNews\Repository\ParserSettingsRepository;
-use ParseThisNews\Storage\MySQLStorage;
+use ParseThisNews\Storage\PSQLStorage;
 use ParseThisNewsApi\Exception\ConflictException;
 use ParseThisNewsApi\Formatter\ParsingFormatter;
 use ParseThisNewsApi\Formatter\SourceListFormatter;
@@ -50,14 +50,14 @@ class ParserController extends BaseController
         array_walk(
             $news,
             static function ($newsItem) {
-                (new NewsRepository(new MySQLStorage()))->add($newsItem);
+                (new NewsRepository(new PSQLStorage()))->add($newsItem);
             }
         );
     }
 
     protected function getSettingsForSource(string $source): ParserSettings
     {
-        $settingsFromStorage = (new ParserSettingsRepository(new MySQLStorage()))->get(
+        $settingsFromStorage = (new ParserSettingsRepository(new PSQLStorage()))->get(
             [
                 ParserSettingsRepository::FIELD_SOURCE => $source
             ]
@@ -74,7 +74,7 @@ class ParserController extends BaseController
 
     protected function checkSource(string $source): void
     {
-        $parsedNews = (new NewsRepository(new MySQLStorage()))->get([NewsRepository::FIELD_SOURCE => $source]);
+        $parsedNews = (new NewsRepository(new PSQLStorage()))->get([NewsRepository::FIELD_SOURCE => $source]);
         if (!empty($parsedNews)) {
             $this->sendError(new ConflictException("Source {$source} is already parsed"));
         }
@@ -82,7 +82,7 @@ class ParserController extends BaseController
 
     public function getSourceList(): void
     {
-        $storage = new MySQLStorage();
+        $storage = new PSQLStorage();
         $formatter = new SourceListFormatter();
 
         $parserSettings = (new ParserSettingsRepository($storage))->get();
@@ -110,7 +110,7 @@ class ParserController extends BaseController
         $this->validateRequest(new UsingModelValidator(ParserSettings::class));
 
         $parseSettingsModel = $this->createParseSettingsModelByRequest();
-        $result = (new ParserSettingsRepository(new MySQLStorage()))->add($parseSettingsModel);
+        $result = (new ParserSettingsRepository(new PSQLStorage()))->add($parseSettingsModel);
         if (!$result) {
             $this->sendError(
                 new \RuntimeException(

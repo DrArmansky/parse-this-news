@@ -11,7 +11,7 @@ use ParseThisNews\Model\ParserSettings;
 use ParseThisNews\Parser\Service\NewsParser;
 use ParseThisNews\Repository\NewsRepository;
 use ParseThisNews\Repository\ParserSettingsRepository;
-use ParseThisNews\Storage\MySQLStorage;
+use ParseThisNews\Storage\PSQLStorage;
 use ParseThisNews\Util\Settings;
 
 class Manager
@@ -37,7 +37,7 @@ class Manager
 
     protected function getSettingsForSource(string $source): ?ParserSettings
     {
-        $settingRepository = new ParserSettingsRepository(new MySQLStorage());
+        $settingRepository = new ParserSettingsRepository(new PSQLStorage());
         $settingsFromStorage = $settingRepository->get([$settingRepository::FIELD_SOURCE => $source]);
 
         return reset($settingsFromStorage) ?: null;
@@ -47,7 +47,7 @@ class Manager
     protected function setDefaultSettings(string $source): bool
     {
         $defaultSettings = Settings::getSettings($source);
-        $repository = new ParserSettingsRepository(new MySQLStorage());
+        $repository = new ParserSettingsRepository(new PSQLStorage());
         return $repository->add(
             (new ParserSettings())
                 ->setSource($source)

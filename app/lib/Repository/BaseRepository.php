@@ -5,7 +5,6 @@ namespace ParseThisNews\Repository;
 
 
 use ParseThisNews\Storage\iStorage;
-use ParseThisNews\Storage\MySQLStorage;
 
 abstract class BaseRepository implements iRepository
 {
@@ -13,7 +12,8 @@ abstract class BaseRepository implements iRepository
 
     protected iStorage $storage;
 
-    public function __construct(iStorage $storage) {
+    public function __construct(iStorage $storage)
+    {
         $this->storage = $storage;
     }
 

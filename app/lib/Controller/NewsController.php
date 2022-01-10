@@ -8,7 +8,7 @@ use ParseThisNews\Model\News;
 use ParseThisNews\Parser\Manager;
 use ParseThisNews\Repository\iRepository;
 use ParseThisNews\Repository\NewsRepository;
-use ParseThisNews\Storage\MySQLStorage;
+use ParseThisNews\Storage\PSQLStorage;
 use ParseThisNews\Util\Settings;
 use ParseThisNews\Util\Template;
 
@@ -22,7 +22,7 @@ class NewsController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->newsRepository = new NewsRepository(new MySQLStorage());
+        $this->newsRepository = new NewsRepository(new PSQLStorage());
     }
 
     public function newsListAction(): void
