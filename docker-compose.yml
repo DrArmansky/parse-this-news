@@ -5,8 +5,6 @@ services:
   app:
     build:
       args:
-        user: sammy
-        uid: 1000
         enable_xdebug: ${DOCKER_PHP_ENABLE_XDEBUG}
       context: ./
       dockerfile: Dockerfile
@@ -15,7 +13,7 @@ services:
     restart: unless-stopped
     working_dir: /var/www/app
     volumes:
-      - ./:/var/www/
+      - ./:/var/www
     networks:
       - backend
 
@@ -36,7 +34,7 @@ services:
     networks:
       - backend
 
-  nginx:
+  server:
     image: nginx:stable-alpine
     container_name: ${APP_NAME}-nginx
     restart: unless-stopped

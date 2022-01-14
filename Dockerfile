@@ -1,8 +1,8 @@
 FROM php:7.4-fpm
 
 # Arguments defined in docker-compose.yml
-ARG user
-ARG uid
+ARG user=sammy
+ARG uid=1000
 ARG enable_xdebug='off'
 
 # Install system dependencies
